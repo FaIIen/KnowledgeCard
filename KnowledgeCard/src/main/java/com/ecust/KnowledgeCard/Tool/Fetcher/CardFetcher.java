@@ -1,6 +1,9 @@
 package com.ecust.KnowledgeCard.Tool.Fetcher;
 
+
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.jsoup.nodes.Document;
 
@@ -19,15 +22,15 @@ public abstract class CardFetcher {
 	//只有一个card的情况
 	protected abstract KnowledgeCard cardAnalyze(Document doc);
 	//抓取
-	public KnowledgeCard[] fetch(String key)
+	public List<KnowledgeCard> fetch(String key)
 	{
 		String encodedName = key;
-		try {
-			if(!key.contains("%"))
-				encodedName = java.net.URLEncoder.encode(key,"utf-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			if(!key.contains("%"))
+//				encodedName = java.net.URLEncoder.encode(key,"utf-8");
+//		} catch (UnsupportedEncodingException e) {
+//			e.printStackTrace();
+//		}
 		Document doc = Connection.connect(baseURL+encodedName);
 		KnowledgeCard[] cards = multiCards(doc);
 		if(null == cards) 
@@ -40,6 +43,9 @@ public abstract class CardFetcher {
 			}
 			else cards = null;
 		}
-		return cards;
+		if(cards==null)
+			return null;
+		else
+			return Arrays.asList(cards);
 	}
 }

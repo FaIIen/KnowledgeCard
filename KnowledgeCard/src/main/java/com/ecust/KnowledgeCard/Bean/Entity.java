@@ -20,9 +20,9 @@ public class Entity {
 		String uri="";
 		if(card!=null){
 			uri=card.getWikiUri();
-			return term+"("+uri+")\n";
+			return term+"("+uri+")  "+source+"\n";
 		}else{
-			return term+"\n";
+			return term+"  "+source+"\n";
 		}
 		
 	}

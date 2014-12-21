@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -15,13 +16,16 @@ import com.ecust.KnowledgeCard.Bean.Entity.entitySource;
 import com.ecust.KnowledgeCard.Bean.Entity.entityType;
 import com.ecust.KnowledgeCard.Bean.KnowledgeCard;
 import com.ecust.KnowledgeCard.Tool.Connection.Connection;
+import com.sun.jmx.snmp.Timestamp;
 
 
 
 public class BingFetcher extends CardFetcher{
+	int count;
 	public BingFetcher(int times){
 		super(times);
-		this.baseURL = "http://global.bing.com/search?q=";
+		this.count=times;
+		this.baseURL = "http://global.bing.com/";
 	}
 //	@Override
 //	protected Document getHTML(String url) throws IOException{
@@ -99,9 +103,9 @@ public class BingFetcher extends CardFetcher{
 								String txt=linktxt[i];
 								if(value.contains(txt) && this.iteratorTimes!=0){
 									CardFetcher bingFetcher=new BingFetcher(this.iteratorTimes-1);
-									KnowledgeCard[] entitycard=bingFetcher.fetch(link[i]);
+									List<KnowledgeCard> entitycard=bingFetcher.fetch(link[i]);
 									if(entitycard!=null)
-										entity.setCard(entitycard[0]);
+										entity.setCard(entitycard.get(0));
 									break;
 								}
 							}
@@ -112,7 +116,6 @@ public class BingFetcher extends CardFetcher{
 				}
 			}
 		} catch (NullPointerException e) {
-			System.out.println(card.getAttributes().size());
 			e.printStackTrace();
 			return null;
 		}
@@ -120,18 +123,21 @@ public class BingFetcher extends CardFetcher{
 	}
 
 	protected KnowledgeCard[] multiCards(Document doc) {
-		if(null == doc.select("ol#b_context > li.b_ans h2")) return null;
+		Elements ss=doc.select("ol#b_context > li.b_ans h2");
+		if(ss.size()==0) 
+			return null;
 		String head = doc.select("ol#b_context > li.b_ans h2").first().text();
 		if(head.equals("See results for"))
 		{
-			Element ul = doc.select("ol#b_context > li.b_ans ul.b_vlist").first();
+			Element ul = doc.select("ol#b_context > li.b_ans > ul.b_vlist").first();
 			Elements divs = ul.select("ul.b_vlist > li");
 			List<KnowledgeCard> cards = new ArrayList<KnowledgeCard>();
 			for(Element div : divs)
 			{
-				String href = div.select(".b_slyGridItem a").first().attr("abs:href");
-				Document subDoc = Connection.connect(href);
-				KnowledgeCard card = cardAnalyze(subDoc);
+				Element a=div.select("span.b_slyGridItem > a[href]").first();
+				String href = a.attributes().get("href");
+				CardFetcher fetcher=new BingFetcher(count);
+				KnowledgeCard card = fetcher.fetch(href).get(0);
 				if(null != card) cards.add(card);
 			}
 			return cards.toArray(new KnowledgeCard[0]);

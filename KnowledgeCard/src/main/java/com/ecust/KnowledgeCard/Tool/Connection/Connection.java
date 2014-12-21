@@ -2,8 +2,10 @@ package com.ecust.KnowledgeCard.Tool.Connection;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException; 
+import java.io.OutputStreamWriter;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -40,7 +42,7 @@ public class Connection {
 			return doc;
 		else{
 			String txt=Jsoup.connect(url)
-					.userAgent("Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36")
+					.userAgent("Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.114 Safari/537.36")
 					.cookie("_FS", "mkt=en-us&ui=#en-us")
 					.execute()
 					.body();
@@ -53,7 +55,8 @@ public class Connection {
 	
 	private static void saveFile(String txt,String url) throws IOException{
 		int fileName=url.hashCode();
-		BufferedWriter bw=new BufferedWriter(new FileWriter(new File("./cache/"+Integer.toString(fileName)+".html")));
+		File writeFile=new File("./cache/"+Integer.toString(fileName)+".html");
+		BufferedWriter bw=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(writeFile), "UTF-8"));
 		bw.write(txt);
 		bw.close();
 		
